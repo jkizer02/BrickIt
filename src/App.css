@@ -1,9 +1,45 @@
+/* Note: Comment out the original #root selector to get Home component to work */
+/*
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
 }
+*/
+
+/* START of additional and/or replacement rules needed for `Home` component */
+body {
+  margin: 0;
+  padding-top: 3.5rem; /* 3.5rem is usually equivalent to 56px */
+}
+
+#root {
+  min-height: 100vh; /* 100vh means "100% of the viewport height" */
+}
+
+.App {
+  height: 100%;
+  width: 100%;
+}
+
+/* 
+Note: in Home.jsx, set the div className to "container-fluid" (not "container")
+so that it will take up the full width of the viewport
+See docs here: https://getbootstrap.com/docs/5.0/layout/containers/
+*/
+
+.table {
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed; /* Forces consistent column widths */
+  text-align: center;
+}
+
+.table tbody tr:nth-child(1) {
+  border-top: 2px solid black; /* Dark bold border under header */
+} 
+/* END of additional styles needed for `Home` component */
 
 .logo {
   height: 6em;
@@ -11,6 +47,7 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
