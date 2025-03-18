@@ -1,7 +1,10 @@
 import { Button } from 'bootstrap'
 import React, {useState }from 'react'
+import axios from 'axios'
+import { Link,useNavigate } from 'react-router-dom'
 
 export default function AddUser() {
+    let navigate = useNavigate();
     const [user, setUser] = React.useState({
         name: '',
         username: '',
@@ -10,12 +13,19 @@ export default function AddUser() {
     const {name, username, email} = user;
     const onInputChange = e => {
         setUser({...user, [e.target.name]: e.target.value});
-    }
+    };
+
+    const onSubmit = async e => {
+        e.preventDefault();
+        await axios.post('http://localhost:8080/user', user);
+        navigate('/');
+    };
   return (
     <div className="custom-container">
         <div className="row">
             <div className="col-md-6 offset-md-3 border rounded p-4 mt-2 shadow">
             <h2 className='text-center m-4'>Register User</h2>
+            <form onSubmit={(e)=>onSubmit(e)}>
             <div className="mb-3">
                 <label htmlFor="Name" className="form-label">
                     Name
@@ -35,7 +45,8 @@ export default function AddUser() {
                 <input type={"text"} className="form-control" placeholder='enter your e-mail address' name='email' value={email} onChange={(e)=>onInputChange(e)}/>
            </div>
            <button type="submit" className='btn btn-outline-primary'>Submit</button>
-           <button type="submit" className='btn btn-outline-danger mx-2'>Cancel</button>
+           <Link to="/" className='btn btn-outline-danger mx-2'>Cancel</Link>
+           </form>
             </div>
         </div>
     </div>
