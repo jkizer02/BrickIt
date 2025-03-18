@@ -6,7 +6,7 @@ export default function Navbar() {
     <div>
         <nav className="navbar navbar-expand-lg bg-primary navbar-dark fixed-top">
     <div className="container-fluid">
-      <a className="navbar-brand" href="#">Navbar</a>
+      <Link className="navbar-brand" to="/">MultiUserVerse</Link>
       <button 
       className="navbar-toggler" 
       type="button" 
