@@ -1,10 +1,10 @@
 body {
   margin: 0;
-  padding-top: 3.5rem; /* 3.5rem is usually equivalent to 56px */
+  padding-top: 56px;
 }
 
 #root {
-  min-height: 100vh; /* 100vh means "100% of the viewport height" */
+  min-height: 100vh;
 }
 
 .App {
@@ -12,32 +12,19 @@ body {
   width: 100%;
 }
 
-/* 
-Note: in Home.jsx, set the div className to "container-fluid" (not "container")
-so that it will take up the full width of the viewport
-See docs here: https://getbootstrap.com/docs/5.0/layout/containers/
+/*
+.App {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 */
 
-.table {
-  width: 100% !important;
-  max-width: 100% !important;
-  table-layout: fixed; /* Forces consistent column widths */
-  text-align: center;
+.no-margin {
+  margin: 0;
+  padding: 0;
 }
-
-.table tbody tr:nth-child(1) {
-  border-top: 2px solid black; /* Dark bold border under header */
-} 
-
-/* START of additional style needed for Add/Edit/View user forms */
-.custom-container {
-  width: 100vw; /* key to getting this element to span the entire viewport width */ 
-  margin: 0 auto; 
-  justify-content: center; 
-  align-items: center;
-  text-align: center;
-}
-/* END of additional styles needed for Add/Edit/View user forms */
 
 .logo {
   height: 6em;
@@ -45,7 +32,6 @@ See docs here: https://getbootstrap.com/docs/5.0/layout/containers/
   will-change: filter;
   transition: filter 300ms;
 }
-
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
@@ -75,3 +61,109 @@ See docs here: https://getbootstrap.com/docs/5.0/layout/containers/
 .read-the-docs {
   color: #888;
 }
+
+.container-fluid {
+  width: 100% !important;
+}
+
+.py-4 {
+  width: 100% !important;
+}
+
+.table {
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed; /* Forces consistent column widths */
+  text-align: center;
+}
+
+.table tbody tr:nth-child(1) {
+  border-top: 2px solid black; /* Dark bold border */
+}
+
+.custom-container {
+  width: 100vw; /* key to getting this element to span the entire viewport width */ 
+  margin: 0 auto; 
+  justify-content: center; 
+  align-items: center;
+  text-align: center;
+}
+
+/* Media query for desktop layout */
+@media (min-width: 768px) {
+
+  .btn-view-desktop {
+    display: inline-block; /* shows this element on desktop */
+  }
+  .btn-view-mobile {
+    display: none; /* hides this element on desktop */
+  }
+
+  .btn-edit-desktop {
+    display: inline-block; /* shows this element on desktop */
+  }
+  .btn-edit-mobile {
+    display: none; /* hides this element on desktop */
+  }
+
+  .btn-delete-desktop {
+    display: inline-block; /* shows this element on desktop */
+  }
+  .btn-delete-mobile {
+    display: none; /* hides this element on desktop */
+  }
+}
+
+/* Media query for mobile layout */
+@media (max-width: 768px) {
+
+  td, th {
+    font-size: 0.85rem;
+    letter-spacing: -0.2px;
+    font-stretch: extra-condensed;
+    overflow-wrap: break-word;
+  }
+
+  td .btn {
+    font-size: 0.9rem;
+    min-width: 1.4rem;
+    padding: 0;
+    margin: 0 0.1rem 0 !important;
+    overflow-wrap: normal;
+    font-family: sans-serif; 
+  }
+
+  /* styles for first column in table */
+  th:nth-child(1), td:nth-child(1) {
+    width: 8% !important;
+  }
+
+  /* styles for second column in table */
+  th:nth-child(2), td:nth-child(2) {
+    width: 15% !important;
+  }
+
+  /* styles for third column in table */
+  th:nth-child(3), td:nth-child(3) {
+    width: 20% !important;
+  }
+
+  .btn-view-desktop {
+    display: none; /* hides this element on mobile */
+  }
+  .btn-view-mobile {
+    display: inline-block; /* shows this element on mobile */
+  }
+  .btn-edit-desktop {
+    display: none; /* hides this element on mobile */
+  }
+  .btn-edit-mobile {
+    display: inline-block; /* shows this element on mobile */
+  }
+  .btn-delete-desktop {
+    display: none; /* hides this element on mobile */
+  }
+  .btn-delete-mobile {
+    display: inline-block; /* shows this element on mobile */
+  }
+} 
