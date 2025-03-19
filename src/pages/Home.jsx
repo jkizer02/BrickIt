@@ -35,7 +35,7 @@ export default function Home() {
     {
       users.map((user, index) => (
         <tr>
-          <th scope="row" key={index}>{index+1}</th>
+          <td scope="row" key={index}>{index+1}</td>
           <td>{user.name}</td>
           <td>{user.username}</td>
           <td>{user.email}</td>
@@ -43,10 +43,21 @@ export default function Home() {
           <Link 
             className="btn btn-primary mx-2"
             to={`/viewuser/${user.id}`}>
-              View
+              <span className="btn-view-desktop">View</span>
+              <span className="btn-view-mobile">&#128065;</span>
               </Link>
-            <Link className="btn btn-outline-primary mx-2" to={`/edituser/${user.id}`}>Edit</Link>
-            <button className="btn btn-danger" onClick={()=>deleteUser(user.id)}>Delete</button>
+            <Link 
+            className="btn btn-outline-primary mx-2" 
+            to={`/edituser/${user.id}`}>
+              <span className="btn-edit-desktop">Edit</span>
+              <span className="btn-edit-mobile">&#9998;</span>
+              </Link>
+            <button 
+            className="btn btn-danger" 
+            onClick={()=>deleteUser(user.id)}>
+              <span className="btn-delete-desktop">Delete</span>
+              <span className="btn-delete-mobile">&#10006;</span>
+              </button>
             </td>
         </tr>
       ))
