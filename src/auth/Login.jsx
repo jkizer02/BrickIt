@@ -7,10 +7,14 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // For navigation after login
+  const [loading, setLoading] = useState(false); // ✅ Tracks login state
+  const navigate = useNavigate(); // ✅ Enables redirection
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setMessage(""); // ✅ Clear previous messages
+    setLoading(true); // ✅ Show loading state
+
     try {
       const response = await axios.post("http://localhost:8080/auth/login", {
         email,
@@ -26,13 +30,14 @@ function Login() {
       }
 
       AuthService.login(token); // ✅ Store token properly
-      setMessage("Login successful!");
 
-      // ✅ Redirect to home page
-      navigate("/");
+      setMessage("✅ Login successful! Redirecting...");
+      setTimeout(() => navigate("/"), 1500); // ✅ Redirect after 1.5 sec
     } catch (error) {
       console.error("Login error:", error);
-      setMessage("Login failed. Check your credentials.");
+      setMessage("❌ Login failed. Check your credentials.");
+    } finally {
+      setLoading(false); // ✅ Reset loading state
     }
   };
 
@@ -40,9 +45,23 @@ function Login() {
     <div>
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <button type="submit">Login</button>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"} {/* ✅ Show loading text */}
+        </button>
       </form>
       <p>{message}</p>
     </div>
