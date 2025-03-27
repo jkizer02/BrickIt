@@ -167,3 +167,16 @@ body {
     display: inline-block; /* shows this element on mobile */
   }
 } 
+
+/* Additional media query for mobile menu, with different breakpoint for now */
+@media (max-width: 992px) {
+  .navbar-collapse {
+    background: #007bff; /* Makes the mobile menu background match navbar */
+    padding: 10px;
+  }
+  
+  .navbar-nav .btn {
+    width: 100%; /* Makes buttons full width in mobile dropdown */
+    margin-bottom: 5px;
+  }
+}
