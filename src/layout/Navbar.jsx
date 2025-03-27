@@ -5,6 +5,7 @@ import AuthService from "../auth/AuthService";
 export default function Navbar() {
   const navigate = useNavigate();
   const isAuthenticated = AuthService.isAuthenticated();
+  const userRole = AuthService.getUserRole();
 
   const handleLogout = () => {
     AuthService.logout();
@@ -16,7 +17,6 @@ export default function Navbar() {
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">MultiUserverse</Link>
         
-        {/* ✅ Hamburger Menu Button (Collapsible Navigation) */}
         <button
           className="navbar-toggler"
           type="button"
@@ -29,11 +29,17 @@ export default function Navbar() {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* ✅ Navigation Links Inside Collapsible Menu */}
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
-            {/* ✅ Show Add User Button only if logged in */}
+            {/* ✅ Show role if logged in */}
             {isAuthenticated && (
+              <li className="nav-item text-white me-3">
+                Logged in as: <strong>{userRole}</strong>
+              </li>
+            )}
+
+            {/* ✅ Show Add User button ONLY for ADMIN users */}
+            {isAuthenticated && userRole === "ADMIN" && (
               <li className="nav-item">
                 <Link className="btn btn-outline-light me-2" to="/adduser">Add User</Link>
               </li>

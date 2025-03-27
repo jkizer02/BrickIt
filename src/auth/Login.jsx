@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AuthService from "./AuthService";
 
@@ -11,10 +12,26 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await AuthService.login(email, password);
+      const response = await axios.post("http://localhost:8080/auth/login", {
+        email,
+        password,
+      });
+
+      const token = response.data; // ✅ Your API returns only the raw token
+
+      // ✅ Ensure token looks valid (JWT format)
+      if (!token || token.split(".").length !== 3) {
+        console.error("Invalid token received:", token);
+        throw new Error("Invalid token format");
+      }
+
+      AuthService.login(token); // ✅ Store token properly
       setMessage("Login successful!");
-      navigate("/"); // Redirect to homepage after login
+
+      // ✅ Redirect to home page
+      navigate("/");
     } catch (error) {
+      console.error("Login error:", error);
       setMessage("Login failed. Check your credentials.");
     }
   };
