@@ -6,11 +6,7 @@ const AuthService = {
   // ✅ Register a new user
   register: async (email, password, role) => {
     try {
-      const response = await axios.post(`${API_URL}/register`, {
-        email,
-        password,
-        role,
-      });
+      const response = await axios.post(`${API_URL}/register`, { email, password, role });
       return response.data;
     } catch (error) {
       console.error("Registration error:", error.response?.data || error.message);
@@ -27,8 +23,11 @@ const AuthService = {
     localStorage.setItem("token", token);
   },
 
-  // ✅ Logout by clearing stored data and redirecting to a confirmation page
+  // ✅ Logout with confirmation & redirect
   logout: () => {
+    const confirmLogout = window.confirm("Are you sure you want to log out?"); // ✅ Confirm before logging out
+    if (!confirmLogout) return;
+
     localStorage.removeItem("token");
     window.location.href = "/logout-success"; // ✅ Redirect to logout confirmation page
   },
@@ -67,12 +66,6 @@ const AuthService = {
     }
   },
 
-  // ✅ Attach token to API requests
-  getAuthHeader: () => {
-    const token = localStorage.getItem("token");
-    return token && token.split(".").length === 3 ? { Authorization: `Bearer ${token}` } : {};
-  },
-
   // ✅ Retrieve token for debugging purposes (Optional)
   getToken: () => {
     return localStorage.getItem("token");
@@ -81,7 +74,13 @@ const AuthService = {
   // ✅ Manually clear the token (for debugging purposes)
   clearToken: () => {
     localStorage.removeItem("token");
-  }
+  },
+
+  // ✅ Attach token to API requests
+  getAuthHeader: () => {
+    const token = localStorage.getItem("token");
+    return token && token.split(".").length === 3 ? { Authorization: `Bearer ${token}` } : {};
+  },
 };
 
 export default AuthService;

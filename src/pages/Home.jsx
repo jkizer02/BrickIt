@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
+import AuthService from "../auth/AuthService"; // ✅ Import AuthService to check roles
 
 export default function Home() {
   const [users, setUsers] = useState([]);
-
   const { id } = useParams();
 
   useEffect(() => {
@@ -17,9 +17,15 @@ export default function Home() {
   };
 
   const deleteUser = async (id) => {
-    await axios.delete(`http://localhost:8080/user/${id}`);
+    await axios.delete(`http://localhost:8080/user/${id}`, {
+      headers: AuthService.getAuthHeader(),
+    });
     loadUsers();
   };
+
+  // ✅ Get authentication status and user role
+  const isAuthenticated = AuthService.isAuthenticated();
+  const userRole = AuthService.getUserRole();
 
   return (
     <div className="container-fluid">
@@ -37,34 +43,32 @@ export default function Home() {
           <tbody>
             {users.map((user, index) => (
               <tr key={user.id}> 
-                <th scope="row" key={index}>
-                  {index + 1}
-                </th>
+                <th scope="row">{index + 1}</th>
                 <td>{user.name}</td>
                 <td>{user.username}</td>
                 <td>{user.email}</td>
                 <td>
-                  <Link
-                    className="btn btn-primary mx-2"
-                    to={`/viewuser/${user.id}`}
-                  >
+                  {/* ✅ View button is always visible */}
+                  <Link className="btn btn-primary mx-2" to={`/viewuser/${user.id}`}>
                     <span className="btn-edit-desktop">View</span>
                     <span className="btn-edit-mobile">&#128065;</span>
                   </Link>
-                  <Link
-                    className="btn btn-outline-primary mx-2"
-                    to={`/edituser/${user.id}`}
-                  >
-                    <span className="btn-edit-desktop">Edit</span>
-                    <span className="btn-edit-mobile">&#9998;</span>
-                  </Link>
-                  <button
-                    className="btn btn-danger mx-2"
-                    onClick={() => deleteUser(user.id)}
-                  >
-                    <span className="btn-delete-desktop">Delete</span>
-                    <span className="btn-delete-mobile">&#10006;</span>
-                  </button>
+
+                  {/* ✅ Show Edit button for Admins & Privileged Users */}
+                  {isAuthenticated && (userRole === "ADMIN" || userRole === "PRIVILEGED_USER") && (
+                    <Link className="btn btn-outline-primary mx-2" to={`/edituser/${user.id}`}>
+                      <span className="btn-edit-desktop">Edit</span>
+                      <span className="btn-edit-mobile">&#9998;</span>
+                    </Link>
+                  )}
+
+                  {/* ✅ Show Delete button ONLY for Admins */}
+                  {isAuthenticated && userRole === "ADMIN" && (
+                    <button className="btn btn-danger mx-2" onClick={() => deleteUser(user.id)}>
+                      <span className="btn-delete-desktop">Delete</span>
+                      <span className="btn-delete-mobile">&#10006;</span>
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
