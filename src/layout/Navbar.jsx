@@ -9,7 +9,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     AuthService.logout();
-    navigate("/login");
+    navigate("/logout-success"); // ✅ Redirect to logout confirmation page
   };
 
   return (

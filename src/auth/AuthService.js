@@ -27,9 +27,10 @@ const AuthService = {
     localStorage.setItem("token", token);
   },
 
-  // ✅ Logout by clearing stored data
+  // ✅ Logout by clearing stored data and redirecting to a confirmation page
   logout: () => {
     localStorage.removeItem("token");
+    window.location.href = "/logout-success"; // ✅ Redirect to logout confirmation page
   },
 
   // ✅ Check if a token exists and is valid
@@ -71,6 +72,16 @@ const AuthService = {
     const token = localStorage.getItem("token");
     return token && token.split(".").length === 3 ? { Authorization: `Bearer ${token}` } : {};
   },
+
+  // ✅ Retrieve token for debugging purposes (Optional)
+  getToken: () => {
+    return localStorage.getItem("token");
+  },
+
+  // ✅ Manually clear the token (for debugging purposes)
+  clearToken: () => {
+    localStorage.removeItem("token");
+  }
 };
 
 export default AuthService;
