@@ -1,35 +1,75 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/auth"; // Adjust if needed for deployment
+const API_URL = "http://localhost:8080/auth"; // Backend auth API
 
 const AuthService = {
   // ✅ Register a new user
   register: async (email, password, role) => {
-    return axios.post(`${API_URL}/register`, { email, password, role });
-  },
-
-  // ✅ Log in an existing user
-  login: async (email, password) => {
-    const response = await axios.post(`${API_URL}/login`, { email, password });
-    if (response.data) {
-      localStorage.setItem("token", response.data); // Save JWT token
+    try {
+      const response = await axios.post(`${API_URL}/register`, {
+        email,
+        password,
+        role,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Registration error:", error.response?.data || error.message);
+      throw error;
     }
-    return response.data;
   },
 
-  // ✅ Log out user (remove JWT token)
+  // ✅ Store only the token, not email
+  login: (token) => {
+    if (!token || token.split(".").length !== 3) {
+      console.error("Invalid token received:", token);
+      return;
+    }
+    localStorage.setItem("token", token);
+  },
+
+  // ✅ Logout by clearing stored data
   logout: () => {
     localStorage.removeItem("token");
   },
 
-  // ✅ Check if user is authenticated (valid token exists)
+  // ✅ Check if a token exists and is valid
   isAuthenticated: () => {
-    return localStorage.getItem("token") !== null;
+    const token = localStorage.getItem("token");
+    if (!token || token.split(".").length !== 3) return false;
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+      const expiryTime = payload.exp * 1000;
+      if (Date.now() >= expiryTime) {
+        AuthService.logout();
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Invalid token:", error);
+      AuthService.logout();
+      return false;
+    }
   },
 
-  // ✅ Get stored token
-  getToken: () => {
-    return localStorage.getItem("token");
+  // ✅ Get user role from token
+  getUserRole: () => {
+    const token = localStorage.getItem("token");
+    if (!token || token.split(".").length !== 3) return "GUEST";
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.role || "GUEST";
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return "GUEST";
+    }
+  },
+
+  // ✅ Attach token to API requests
+  getAuthHeader: () => {
+    const token = localStorage.getItem("token");
+    return token && token.split(".").length === 3 ? { Authorization: `Bearer ${token}` } : {};
   },
 };
 

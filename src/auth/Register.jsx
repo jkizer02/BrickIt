@@ -13,10 +13,11 @@ function Register() {
     e.preventDefault();
     try {
       await AuthService.register(email, password, role);
-      setMessage("Registration successful! Please log in.");
-      navigate("/login"); // Redirect to login page after registration
+      setMessage("✅ Registration successful! Please log in.");
+      setTimeout(() => navigate("/login"), 2000); // Redirect to login after 2s
     } catch (error) {
-      setMessage("Registration failed. Try again.");
+      setMessage("❌ Registration failed. Try again.");
+      console.error("Registration failed:", error.response?.data || error.message);
     }
   };
 
