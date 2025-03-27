@@ -39,9 +39,12 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/logout-success" element={<LogoutSuccess />} /> {/* ✅ New route */}
 
+          {/* ✅ Protected Routes */}
           <Route path="/adduser" element={<ProtectedRoute element={<AddUser />} requiredRoles={["ADMIN"]} />} />
           <Route path="/edituser/:id" element={<ProtectedRoute element={<EditUser />} requiredRoles={["ADMIN", "PRIVILEGED_USER"]} />} />
-          <Route path="/viewuser/:id" element={<ProtectedRoute element={<ViewUser />} />} />
+
+          {/* ✅ Public Route (ViewUser should be accessible to all users, including guests) */}
+          <Route path="/viewuser/:id" element={<ViewUser />} /> 
         </Routes>
       </Router>
     </div>
