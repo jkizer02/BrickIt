@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import AuthService from "../auth/AuthService"; // ✅ Import AuthService
+import { API_BASE_URL } from '../api';
 
 export default function EditUser() {
   let navigate = useNavigate();
@@ -26,7 +27,7 @@ export default function EditUser() {
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:8080/user/${id}`, user, {
+      await axios.put(`${API_BASE_URL}/user/${id}`, user, {
         headers: AuthService.getAuthHeader(), // ✅ Include JWT token
       });
       navigate("/");
@@ -37,7 +38,7 @@ export default function EditUser() {
 
   const loadUser = async () => {
     try {
-      const result = await axios.get(`http://localhost:8080/user/${id}`, {
+      const result = await axios.get(`${API_BASE_URL}/user/${id}`, {
         headers: AuthService.getAuthHeader(), // ✅ Include JWT token
       });
       setUser(result.data);
