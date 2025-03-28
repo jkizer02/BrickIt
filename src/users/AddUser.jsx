@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import AuthService from "../auth/AuthService"; // ✅ Import AuthService
+import { API_BASE_URL } from '../api';
 
 export default function AddUser() {
   let navigate = useNavigate();
@@ -21,7 +22,7 @@ export default function AddUser() {
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8080/user", user, {
+      await axios.post(`${API_BASE_URL}/user`, user, {
         headers: AuthService.getAuthHeader(), // ✅ Include JWT token
       });
       navigate("/");
