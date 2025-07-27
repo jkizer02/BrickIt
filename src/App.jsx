@@ -5,13 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 
 import Navbar from "./layout/Navbar";
 import Home from "./pages/Home";
-import AddUser from "./users/AddUser";
-import EditUser from "./users/EditUser";
-import ViewUser from "./users/ViewUser";
-import Login from "./auth/Login";
-import Register from "./auth/Register";
-import LogoutSuccess from "./auth/LogoutSuccess"; // ✅ Import new logout page
-import AuthService from "./auth/AuthService";
+import Generate from "./models/Generate";
 
 const ProtectedRoute = ({ element, requiredRoles }) => {
   const isAuthenticated = AuthService.isAuthenticated();
@@ -35,16 +29,9 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/logout-success" element={<LogoutSuccess />} /> {/* ✅ New route */}
-
-          {/* ✅ Protected Routes */}
-          <Route path="/adduser" element={<ProtectedRoute element={<AddUser />} requiredRoles={["ADMIN"]} />} />
-          <Route path="/edituser/:id" element={<ProtectedRoute element={<EditUser />} requiredRoles={["ADMIN", "PRIVILEGED_USER"]} />} />
-
+    
           {/* ✅ Public Route (ViewUser should be accessible to all users, including guests) */}
-          <Route path="/viewuser/:id" element={<ViewUser />} /> 
+          <Route path="/Generate/" element={<Generate />} /> 
         </Routes>
       </Router>
     </div>
