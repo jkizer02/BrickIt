@@ -6,21 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Navbar from "./layout/Navbar";
 import Home from "./pages/Home";
 import Generate from "./models/Generate";
-
-const ProtectedRoute = ({ element, requiredRoles }) => {
-  const isAuthenticated = AuthService.isAuthenticated();
-  const userRole = AuthService.getUserRole();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (requiredRoles && !requiredRoles.includes(userRole)) {
-    return <Navigate to="/" replace />;
-  }
-
-  return element;
-};
+import ModifyModel from "./models/modify_model";
 
 function App() {
   return (
@@ -29,9 +15,8 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-    
-          {/* ✅ Public Route (ViewUser should be accessible to all users, including guests) */}
-          <Route path="/Generate/" element={<Generate />} /> 
+          <Route path="/generate" element={<Generate />} /> 
+          <Route path="/modify-model" element={<ModifyModel />} />
         </Routes>
       </Router>
     </div>

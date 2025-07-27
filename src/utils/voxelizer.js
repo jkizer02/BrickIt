@@ -149,13 +149,30 @@ export const createVoxelMesh = (voxelData, color = 0x00ff00, brickDimensions = n
   
   // BoxGeometry parameters: (width, height, depth) = (X, Y, Z)
   const geometry = new THREE.BoxGeometry(dimensions.width, dimensions.height, dimensions.length);
-  const material = new THREE.MeshLambertMaterial({ color });
+  
+  // Define the three alternating colors based on Z position
+  const colors = {
+    0: 0x003366, // Dark blue (z % 3 === 0)
+    1: 0x90EE90, // Light green (z % 3 === 1)  
+    2: 0x228B22  // Dark green (z % 3 === 2)
+  };
+  
+  // Create materials for each color
+  const materials = {
+    0: new THREE.MeshLambertMaterial({ color: colors[0] }),
+    1: new THREE.MeshLambertMaterial({ color: colors[1] }),
+    2: new THREE.MeshLambertMaterial({ color: colors[2] })
+  };
   
   let voxelCount = 0;
   for (let x = 0; x < gridSize.x; x++) {
     for (let y = 0; y < gridSize.y; y++) {
       for (let z = 0; z < gridSize.z; z++) {
         if (voxelGrid[x][y][z]) {
+          // Determine color based on z position modulo 3
+          const colorIndex = z % 3;
+          const material = materials[colorIndex];
+          
           const voxel = new THREE.Mesh(geometry, material);
           voxel.position.set(
             bbox.min.x + (x + 0.5) * effectiveVoxelSize.x,
@@ -171,7 +188,8 @@ export const createVoxelMesh = (voxelData, color = 0x00ff00, brickDimensions = n
     }
   }
   
-  console.log(`Created ${voxelCount} LEGO-style voxels (${dimensions.width}×${dimensions.length}×${dimensions.height})`);
+  console.log(`Created ${voxelCount} LEGO-style voxels with alternating colors based on Z position`);
+  console.log('Color scheme: Z%3=0 (Dark Blue), Z%3=1 (Light Green), Z%3=2 (Dark Green)');
   return voxelGroup;
 };
 
