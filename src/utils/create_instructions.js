@@ -89,11 +89,11 @@ export const createInstructions = async (voxelData, fileName = 'lego_instruction
       pdf.setFontSize(10);
       pdf.text('Color Guide:', 20, 45);
       pdf.setTextColor(0, 51, 102); // Dark blue
-      pdf.text('● Dark Blue (Layer base)', 30, 55);
+      pdf.text('● light blue = 1 by 1 by 1', 30, 55);
       pdf.setTextColor(144, 238, 144); // Light green  
-      pdf.text('● Light Green (Layer +1)', 30, 65);
+      pdf.text('● red  = 1 by 1 by 1/3', 30, 65);
       pdf.setTextColor(34, 139, 34); // Dark green
-      pdf.text('● Dark Green (Layer +2)', 30, 75);
+      pdf.text('● yellow = 1 by 1 by 2/3', 30, 75);
       pdf.setTextColor(0, 0, 0); // Reset to black
       
       // Add the 2D image to PDF
@@ -153,9 +153,16 @@ const generate2DImage = async (voxelGrid, gridSize, maxZ) => {
   
   // Define colors matching the 3D voxel colors
   const colors = {
-    0: '#003366', // Dark blue (z % 3 === 0)
-    1: '#90EE90', // Light green (z % 3 === 1)  
-    2: '#228B22'  // Dark green (z % 3 === 2)
+    0: '#067ef7ff', // Dark blue (z % 3 === 0)
+    1: '#f53737ff', // Light green (z % 3 === 1)  
+    2: '#d6e40fff'  // Dark green (z % 3 === 2)
+  };
+  
+  // Define edge colors for each cube type
+  const edgeColors = {
+    0: '#000000ff', // Darker blue edge for dark blue cubes
+    1: '#000000ff', // Darker green edge for light green cubes
+    2: '#000000ff'  // Very dark green edge for dark green cubes
   };
   
   // Draw grid (top-down view, X-Y plane)
@@ -183,9 +190,9 @@ const generate2DImage = async (voxelGrid, gridSize, maxZ) => {
         const drawY = offsetY + y * cellSize;
         ctx.fillRect(drawX, drawY, cellSize - 1, cellSize - 1); // -1 for grid lines
         
-        // Add border for better visibility
-        ctx.strokeStyle = '#333333';
-        ctx.lineWidth = 1;
+        // Add border with specific edge color for this cube type
+        ctx.strokeStyle = edgeColors[colorIndex];
+        ctx.lineWidth = 2; // Thicker border for better visibility
         ctx.strokeRect(drawX, drawY, cellSize - 1, cellSize - 1);
       }
     }
