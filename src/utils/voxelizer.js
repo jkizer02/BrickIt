@@ -30,14 +30,22 @@ export const voxelizeGeometry = (geometry, maxBoundingSize = 35) => {
   console.log('Max dimension:', maxCurrentDim);
   console.log('Calculated voxel size:', voxelSize);
   
-  // Calculate grid dimensions
+  // Calculate grid dimensions with 3x resolution in Z direction for LEGO brick proportions
   const gridSize = {
     x: Math.ceil(currentSize.x / voxelSize),
     y: Math.ceil(currentSize.y / voxelSize),
-    z: Math.ceil(currentSize.z / voxelSize)
+    z: Math.ceil(currentSize.z / (voxelSize / 3)) // 3x finer resolution in Z
+  };
+  
+  // Calculate effective voxel sizes for each dimension
+  const effectiveVoxelSize = {
+    x: voxelSize,
+    y: voxelSize,
+    z: voxelSize / 3 // Z voxels are 1/3 the size
   };
   
   console.log('Grid dimensions:', gridSize);
+  console.log('Effective voxel sizes:', effectiveVoxelSize);
   
   // Create 3D grid
   const voxelGrid = new Array(gridSize.x);
@@ -69,25 +77,25 @@ export const voxelizeGeometry = (geometry, maxBoundingSize = 35) => {
     const minZ = Math.min(v1.z, v2.z, v3.z);
     const maxZ = Math.max(v1.z, v2.z, v3.z);
     
-    // Check voxels in triangle bounding box
-    const startX = Math.max(0, Math.floor((minX - bbox.min.x) / voxelSize));
-    const endX = Math.min(gridSize.x - 1, Math.ceil((maxX - bbox.min.x) / voxelSize));
-    const startY = Math.max(0, Math.floor((minY - bbox.min.y) / voxelSize));
-    const endY = Math.min(gridSize.y - 1, Math.ceil((maxY - bbox.min.y) / voxelSize));
-    const startZ = Math.max(0, Math.floor((minZ - bbox.min.z) / voxelSize));
-    const endZ = Math.min(gridSize.z - 1, Math.ceil((maxZ - bbox.min.z) / voxelSize));
+    // Check voxels in triangle bounding box using effective voxel sizes
+    const startX = Math.max(0, Math.floor((minX - bbox.min.x) / effectiveVoxelSize.x));
+    const endX = Math.min(gridSize.x - 1, Math.ceil((maxX - bbox.min.x) / effectiveVoxelSize.x));
+    const startY = Math.max(0, Math.floor((minY - bbox.min.y) / effectiveVoxelSize.y));
+    const endY = Math.min(gridSize.y - 1, Math.ceil((maxY - bbox.min.y) / effectiveVoxelSize.y));
+    const startZ = Math.max(0, Math.floor((minZ - bbox.min.z) / effectiveVoxelSize.z));
+    const endZ = Math.min(gridSize.z - 1, Math.ceil((maxZ - bbox.min.z) / effectiveVoxelSize.z));
     
     for (let x = startX; x <= endX; x++) {
       for (let y = startY; y <= endY; y++) {
         for (let z = startZ; z <= endZ; z++) {
           const voxelCenter = new THREE.Vector3(
-            bbox.min.x + (x + 0.5) * voxelSize,
-            bbox.min.y + (y + 0.5) * voxelSize,
-            bbox.min.z + (z + 0.5) * voxelSize
+            bbox.min.x + (x + 0.5) * effectiveVoxelSize.x,
+            bbox.min.y + (y + 0.5) * effectiveVoxelSize.y,
+            bbox.min.z + (z + 0.5) * effectiveVoxelSize.z
           );
           
           // Simple point-in-triangle test (simplified)
-          if (isPointNearTriangle(voxelCenter, v1, v2, v3, voxelSize)) {
+          if (isPointNearTriangle(voxelCenter, v1, v2, v3, Math.min(effectiveVoxelSize.x, effectiveVoxelSize.y, effectiveVoxelSize.z))) {
             voxelGrid[x][y][z] = true;
           }
         }
@@ -96,7 +104,7 @@ export const voxelizeGeometry = (geometry, maxBoundingSize = 35) => {
   }
   
   console.log('Voxelization complete');
-  return { voxelGrid, gridSize, bbox, voxelSize };
+  return { voxelGrid, gridSize, bbox, voxelSize, effectiveVoxelSize };
 };
 
 /**
@@ -120,16 +128,27 @@ const isPointNearTriangle = (point, v1, v2, v3, threshold) => {
 };
 
 /**
- * Function to create voxel mesh from grid
+ * Function to create voxel mesh from grid with LEGO-style brick proportions
  * @param {Object} voxelData - Voxel data from voxelizeGeometry
  * @param {number} color - Hex color for voxels (default: 0x00ff00)
+ * @param {Object} brickDimensions - Custom brick dimensions {width, length, height} (default: LEGO proportions)
  * @returns {THREE.Group} Group containing all voxel meshes
  */
-export const createVoxelMesh = (voxelData, color = 0x00ff00) => {
-  const { voxelGrid, gridSize, bbox, voxelSize } = voxelData;
+export const createVoxelMesh = (voxelData, color = 0x00ff00, brickDimensions = null) => {
+  const { voxelGrid, gridSize, bbox, voxelSize, effectiveVoxelSize } = voxelData;
   const voxelGroup = new THREE.Group();
   
-  const geometry = new THREE.BoxGeometry(voxelSize * 0.9, voxelSize * 0.9, voxelSize * 0.9);
+  // Default LEGO-style brick dimensions: 1 wide × 1 tall × 1/3 deep
+  const defaultDimensions = {
+    width: voxelSize * 0.9,   // X dimension
+    length: voxelSize * 0.3,  // Z dimension (1/3 depth)
+    height: voxelSize * 0.9   // Y dimension  
+  };
+  
+  const dimensions = brickDimensions || defaultDimensions;
+  
+  // BoxGeometry parameters: (width, height, depth) = (X, Y, Z)
+  const geometry = new THREE.BoxGeometry(dimensions.width, dimensions.height, dimensions.length);
   const material = new THREE.MeshLambertMaterial({ color });
   
   let voxelCount = 0;
@@ -139,9 +158,9 @@ export const createVoxelMesh = (voxelData, color = 0x00ff00) => {
         if (voxelGrid[x][y][z]) {
           const voxel = new THREE.Mesh(geometry, material);
           voxel.position.set(
-            bbox.min.x + (x + 0.5) * voxelSize,
-            bbox.min.y + (y + 0.5) * voxelSize,
-            bbox.min.z + (z + 0.5) * voxelSize
+            bbox.min.x + (x + 0.5) * effectiveVoxelSize.x,
+            bbox.min.y + (y + 0.5) * effectiveVoxelSize.y,
+            bbox.min.z + (z + 0.5) * effectiveVoxelSize.z
           );
           voxel.castShadow = true;
           voxel.receiveShadow = true;
@@ -152,7 +171,7 @@ export const createVoxelMesh = (voxelData, color = 0x00ff00) => {
     }
   }
   
-  console.log(`Created ${voxelCount} voxels`);
+  console.log(`Created ${voxelCount} LEGO-style voxels (${dimensions.width}×${dimensions.length}×${dimensions.height})`);
   return voxelGroup;
 };
 
@@ -161,9 +180,10 @@ export const createVoxelMesh = (voxelData, color = 0x00ff00) => {
  * @param {THREE.BufferGeometry} geometry - Input geometry
  * @param {number} maxBoundingSize - Maximum voxels per dimension
  * @param {number} color - Hex color for voxels
+ * @param {Object} brickDimensions - Custom brick dimensions {width, length, height}
  * @returns {THREE.Group} Ready-to-use voxel mesh group
  */
-export const createVoxelizedModel = (geometry, maxBoundingSize = 35, color = 0x00ff00) => {
+export const createVoxelizedModel = (geometry, maxBoundingSize = 35, color = 0x00ff00, brickDimensions = null) => {
   const voxelData = voxelizeGeometry(geometry, maxBoundingSize);
-  return createVoxelMesh(voxelData, color);
+  return createVoxelMesh(voxelData, color, brickDimensions);
 };

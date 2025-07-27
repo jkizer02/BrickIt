@@ -7,6 +7,10 @@ import { voxelizeGeometry, createVoxelMesh, createVoxelizedModel } from '../util
 
 export default function Home() {
   const mountRef = useRef(null);
+  
+  // Adjustable model generation parameter - change this to control detail level
+  // Higher values = more detail but more voxels, Lower values = less detail but fewer voxels
+  const VOXEL_RESOLUTION = 10; // Default: 45 voxels along the largest dimension
 
   useEffect(() => {
     // Three.js scene setup
@@ -56,7 +60,7 @@ export default function Home() {
       
       // Load the STL file - using the actual file you have
       loader.load(
-        '/TURTLE_STL.stl', // Updated to match your actual file
+        '/lighthouse_02.stl', // Updated to match your actual file
         (geometry) => {
           console.log('STL loaded successfully!');
           
@@ -95,8 +99,22 @@ export default function Home() {
           // Add original mesh (semi-transparent)
           modelGroup.add(mesh);
           
-          // Create voxelized version using the imported function
-          const voxelMesh = createVoxelizedModel(geometry, 45, 0x00ff00);
+          // Calculate brick dimensions based on resolution for consistent LEGO proportions
+          // Swapped Y and Z logic: Z dimension is now 1/3 with 3x finer resolution
+          const baseBrickSize = maxDim / VOXEL_RESOLUTION;
+          const brickDimensions = {
+            width: baseBrickSize * 0.9,        // X dimension (slightly smaller for gap)
+            length: (baseBrickSize * 0.3), // Z dimension (1/3 depth, matches 3x finer Z-grid resolution)
+            height: baseBrickSize * 0.9        // Y dimension (full height)
+          };
+          
+          // Create voxelized version using calculated dimensions
+          const voxelMesh = createVoxelizedModel(
+            geometry, 
+            VOXEL_RESOLUTION, 
+            0x00ff00, 
+            brickDimensions
+          );
           
           // Scale and rotate voxel mesh to match original
           voxelMesh.scale.setScalar(scale);
