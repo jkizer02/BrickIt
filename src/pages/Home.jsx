@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import * as THREE from 'three';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
+import { voxelizeGeometry, createVoxelMesh, createVoxelizedModel } from '../utils/voxelizer.js';
 
 export default function Home() {
   const mountRef = useRef(null);
@@ -10,10 +11,15 @@ export default function Home() {
   useEffect(() => {
     // Three.js scene setup
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, 400 / 300, 0.1, 1000);
+    
+    // Calculate renderer size (3/4 of screen)
+    const rendererWidth = Math.floor(window.innerWidth * 0.4);
+    const rendererHeight = Math.floor(window.innerHeight * 0.4);
+    
+    const camera = new THREE.PerspectiveCamera(75, rendererWidth / rendererHeight, 0.1, 1000);
     
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(400, 300);
+    renderer.setSize(rendererWidth, rendererHeight);
     renderer.setClearColor(0xf0f0f0);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -54,48 +60,52 @@ export default function Home() {
         (geometry) => {
           console.log('STL loaded successfully!');
           
-          // Create a more detailed material
-          const material = new THREE.MeshPhongMaterial({ 
-            color: 0x4a90e2,
-            shininess: 100,
-            specular: 0x222222,
-            side: THREE.DoubleSide
-          });
-          
-          // Create mesh from loaded geometry
-          const mesh = new THREE.Mesh(geometry, material);
-          
-          // Center the model
+          // Center the model first
           geometry.computeBoundingBox();
           const box = geometry.boundingBox;
           const center = new THREE.Vector3();
           box.getCenter(center);
           geometry.translate(-center.x, -center.y, -center.z);
           
-          // Scale the model to fit nicely in view (made larger)
+          // Create original mesh (semi-transparent)
+          const material = new THREE.MeshPhongMaterial({ 
+            color: 0x4a90e2,
+            shininess: 100,
+            specular: 0x222222,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.3
+          });
+          
+          const mesh = new THREE.Mesh(geometry, material);
+          
+          // Scale the model to fit nicely in view (made 2x bigger)
           const size = new THREE.Vector3();
           box.getSize(size);
           const maxDim = Math.max(size.x, size.y, size.z);
-          const scale = 4.0 / maxDim; // Made significantly larger (was 2.5)
+          const scale = 8.0 / maxDim; // Made 2x bigger (was 4.0)
           mesh.scale.setScalar(scale);
           
           // Rotate the turtle 270 degrees on the X-axis
           mesh.rotation.x = (3 * Math.PI) / 2; // 270 degrees in radians
           
-          // Add wireframe overlay for more detail
-          const wireframe = new THREE.WireframeGeometry(geometry);
-          const line = new THREE.LineSegments(wireframe);
-          line.material.color.setHex(0x000000);
-          line.material.opacity = 0.3;
-          line.material.transparent = true;
-          line.scale.setScalar(scale);
-          line.rotation.x = (3 * Math.PI) / 2; // Also rotate the wireframe
-          
           mesh.castShadow = true;
           mesh.receiveShadow = true;
           
+          // Add original mesh (semi-transparent)
           modelGroup.add(mesh);
-          modelGroup.add(line); // Add wireframe for detail
+          
+          // Create voxelized version using the imported function
+          const voxelMesh = createVoxelizedModel(geometry, 45, 0x00ff00);
+          
+          // Scale and rotate voxel mesh to match original
+          voxelMesh.scale.setScalar(scale);
+          voxelMesh.rotation.x = (3 * Math.PI) / 2;
+          
+          // Position voxels slightly offset so you can see both
+          voxelMesh.position.x = 5;
+          
+          modelGroup.add(voxelMesh);
           scene.add(modelGroup);
           
           // Store reference for animation
@@ -130,7 +140,7 @@ export default function Home() {
     const modelContainer = loadSTLModel();
     
     // Position camera
-    camera.position.set(4, 4, 4);
+    camera.position.set(6, 6, 6);
     camera.lookAt(0, 0, 0);
     
     // Animation
@@ -166,7 +176,7 @@ export default function Home() {
         <div className="text-center mt-4">
           <h2>Featured Models</h2>
           <p>Check out some of our featured LEGO models below:</p>
-          <div ref={mountRef} style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}></div>
+          <div ref={mountRef} style={{ margin: '20px auto', width: 'fit-content' }}></div>
         </div>
       </div>
     </div>
