@@ -89,11 +89,11 @@ export const createInstructions = async (voxelData, fileName = 'lego_instruction
       pdf.setFontSize(10);
       pdf.text('Color Guide:', 20, 45);
       pdf.setTextColor(0, 51, 102); // Dark blue
-      pdf.text('● light blue = 1 by 1 by 1', 30, 55);
+      pdf.text('● light blue = 1 by 1/3', 30, 55);
       pdf.setTextColor(144, 238, 144); // Light green  
-      pdf.text('● red  = 1 by 1 by 1/3', 30, 65);
+      pdf.text('● red  = 1 by 1 by 2/3', 30, 65);
       pdf.setTextColor(34, 139, 34); // Dark green
-      pdf.text('● yellow = 1 by 1 by 2/3', 30, 75);
+      pdf.text('● yellow = 1 by 1 by 1', 30, 75);
       pdf.setTextColor(0, 0, 0); // Reset to black
       
       // Add the 2D image to PDF
