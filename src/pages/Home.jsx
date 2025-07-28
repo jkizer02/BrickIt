@@ -39,11 +39,33 @@ export default function Home() {
           <Link to="/generate" className="btn btn-primary">Generate LEGO Model</Link>
           <Link to="/tour" className="btn btn-secondary ms-2">Quick Tour</Link>
         </div>
-        <div className="text-center mt-4">
-          <h2>Featured Models</h2>
-          <p>Check out some of our featured LEGO models below:</p>
-          <div ref={mountRef} style={{ margin: '20px auto', width: 'fit-content' }}></div>
+        
+        <div className="mt-4">
+          <table className="table table-borderless">
+            <thead className="table">
+              <tr>
+                <th scope="col">Picture</th>
+                <th scope="col">Model Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Tags</th>
+                <th scope="col">View</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <img src="/lighthouse_02.png" alt="Lighthouse Model" style={{ width: '100px', height: '100px' }} />
+                </td>
+                <td>Lighthouse</td>
+                <td>A lighthouse set for coastal adventures</td>
+                <td>Ocean</td>
+                <td><button>View</button></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+        
+        <table></table>
       </div>
     </div>
   );

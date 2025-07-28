@@ -152,9 +152,9 @@ export const createVoxelMesh = (voxelData, color = 0x00ff00, brickDimensions = n
   
   // Define the three alternating colors based on Z position
   const colors = {
-    0: 0x003366, // Dark blue (z % 3 === 0)
-    1: 0x90EE90, // Light green (z % 3 === 1)  
-    2: 0x228B22  // Dark green (z % 3 === 2)
+    0: 0x067ef7, // Dark blue (z % 3 === 0)
+    1: 0xf53737, // Light green (z % 3 === 1)  
+    2: 0xd6e40f
   };
   
   // Create materials for each color
