@@ -1,34 +1,47 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef,useState } from "react";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import { createScene, loadAndDisplayModel, startAnimation } from '../utils/sceneSetup.js';
+import { API_BASE_URL } from "../api.js";   
 
 export default function Home() {
   const mountRef = useRef(null);
   
+  const [models, setModels] = useState([]);
+  const { modelId } = useParams();
   // Adjustable model generation parameter - change this to control detail level
   // Higher values = more detail but more voxels, Lower values = less detail but fewer voxels
   const VOXEL_RESOLUTION = 10; // Default: 45 voxels along the largest dimension
 
   useEffect(() => {
     // Create the Three.js scene with all lighting and setup
-    const { scene, camera, renderer, controls, cleanup } = createScene(mountRef.current);
+    //const { scene, camera, renderer, controls, cleanup } = createScene(mountRef.current);
     
     // Load and display the STL model with voxelization
-    loadAndDisplayModel(scene, '/lighthouse_02.stl', VOXEL_RESOLUTION)
-      .then((modelGroup) => {
+    //loadAndDisplayModel(scene, '/lighthouse_02.stl', VOXEL_RESOLUTION)
+     // .then((modelGroup) => {
         // Start the animation loop with mouse controls
-        startAnimation(renderer, scene, camera, controls);
-      })
-      .catch((error) => {
-        console.error('Failed to load model:', error);
+    //    startAnimation(renderer, scene, camera, controls);
+    //  })
+    //  .catch((error) => {
+    //    console.error('Failed to load model:', error);
         // Start animation anyway in case of fallback
-        startAnimation(renderer, scene, camera, controls);
-      });
-    
+    //    startAnimation(renderer, scene, camera, controls);
+    //  });
+     loadModels();
     // Cleanup function
-    return cleanup;
-  }, [VOXEL_RESOLUTION]);
+    //return cleanup;
+  }, []);
+
+  const loadModels = async () => {  
+    try {
+      const response = await axios.get('http://localhost:8080/models');
+      console.log('Models loaded:', response.data);
+      setModels(response.data);
+    } catch (error) {
+      console.error('Error loading models:', error);
+    }
+  }
 
   return (
     <div className="container-fluid">
@@ -52,15 +65,23 @@ export default function Home() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  <img src="/lighthouse_02.png" alt="Lighthouse Model" style={{ width: '100px', height: '100px' }} />
-                </td>
-                <td>Lighthouse</td>
-                <td>A lighthouse set for coastal adventures</td>
-                <td>Ocean</td>
-                <td><button>download instructions</button></td>
-              </tr>
+              {Array.isArray(models) && models.length > 0 ? models.map((model, index) => (
+                <tr key={model.id || index}>
+                  <td>
+                    <img src={"lighthouse_02.png"} alt={model.title || 'Model'} style={{ width: '100px', height: '100px' }} />
+                  </td>
+                  <td>{model.title || 'Unknown'}</td>
+                  <td>{model.description || 'No description'}</td>
+                  <td>{model.tags ? model.tags.join(', ') : 'No tags'}</td>
+                  <td><button className="btn btn-sm btn-primary">Download Instructions</button></td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan="6" className="text-center">
+                    <div className="text-muted">Loading models...</div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
