@@ -59,7 +59,7 @@ export default function Home() {
                 <td>Lighthouse</td>
                 <td>A lighthouse set for coastal adventures</td>
                 <td>Ocean</td>
-                <td><button>View</button></td>
+                <td><button>download instructions</button></td>
               </tr>
             </tbody>
           </table>
